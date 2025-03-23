@@ -13,11 +13,12 @@ TEST(Test_data_path, _1){
 }
 std::string data_dir = TEST_DATA_PATH;
 
-TEST(TestSuit, _1){
-    auto befor = read(data_dir + "/befor.txt");
-    auto after = read(data_dir +  "/after.txt");
+TEST(Test_lcs_dp, _1){
+    auto befor = read(data_dir + "/1_befor.txt");
+    auto after = read(data_dir +  "/1_after.txt");
 
     Text txt(befor, after);
+    txt.calc_dp();
 
     txt.showDiff();
 }

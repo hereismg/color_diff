@@ -120,14 +120,48 @@ namespace mg{
     };
     
     class Text{
-    public:
+    private:
         std::vector<std::string> m_befor;
         std::vector<std::string> m_after;
         std::vector<std::pair<State, std::string>> m_diff;
 
-        Text(const std::string& befor, const std::string& after):m_befor(split(befor, '\n')), m_after(split(after, '\n')){}
-        Text(std::vector<std::string> befor, std::vector<std::string> after): m_befor(befor), m_after(after){}
+        std::vector<std::vector<int>> m_dp;
+        std::vector<std::vector<int>> m_parent;
+
+    public:
+        Text(const std::string& befor, const std::string& after):
+            m_befor (split(befor, '\n')), 
+            m_after (split(after, '\n')),
+            m_dp    (m_befor.size()+1, std::vector<int>(m_after.size()+1, 0)),
+            m_parent(m_befor.size()+1, std::vector<int>(m_after.size()+1, 0))
+            {}
+        Text(std::vector<std::string> befor, std::vector<std::string> after): 
+            m_befor (befor), 
+            m_after (after),
+            m_dp    (m_befor.size()+1, std::vector<int>(m_after.size()+1, 0)),
+            m_parent(m_befor.size()+1, std::vector<int>(m_after.size()+1, 0))
+            {}
     
+
+    public:
+        void calc_dp(){
+            for (int i=1; i<=m_befor.size(); i++){
+                for (int j=1; j<=m_after.size(); j++){
+                    if (m_befor[i-1].compare(m_after[j-1]) == 0){
+                        m_dp[i][j] = m_dp[i-1][j-1] + 1;
+                        m_parent[i][j] = 1; // 斜角
+                    }
+                    else{
+                        m_dp[i][j] = std::max(m_dp[i-1][j], m_dp[i][j-1]);
+    
+                        if (m_dp[i-1][j]>m_dp[i][j-1]) m_parent[i][j] = 2;
+                        else m_parent[i][j] = 0;
+                    }
+                }
+            }
+        }
+        
+        // ========== 求出文本差异 =========
         int diff(){
             std::vector<std::vector<int>> dp(m_befor.size()+1, std::vector<int>(m_after.size()+1, 0)),
                                 parent(m_befor.size()+1, std::vector<int>(m_after.size()+1, -1));
@@ -173,19 +207,19 @@ namespace mg{
     
             return dp[m_befor.size()][m_after.size()];        
         }
-        
+
         void showDiff(){
             diff();
 
             for (auto iter: m_diff){
                 if (iter.first == State::SAME){
-                    color_cout << iter.second << std::endl;
+                    color_cout << "  │ " << iter.second << std::endl;
                 }
                 else if (iter.first == State::ADDITION){
-                    color_cout << Color::GREEN << "+ " << iter.second << Color::RESET << std::endl;
+                    color_cout << Color::GREEN << "+ │ " << iter.second << Color::RESET << std::endl;
                 }
                 else if (iter.first == State::DELETE){
-                    color_cout << Color::RED << "- " << iter.second << Color::RESET << std::endl;
+                    color_cout << Color::RED << "- │ " << iter.second << Color::RESET << std::endl;
                 }
             }
         }

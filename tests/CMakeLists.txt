@@ -6,7 +6,7 @@ file(GLOB sub_dir
 
 foreach(test ${sub_dir})
     get_filename_component(test_name "${test}" NAME_WE)
-    add_executable(${test_name} "${test}/main.cpp")
+    add_executable(${test_name} "${test}/${test_name}.cpp")
 
     target_include_directories(
         ${test_name}
