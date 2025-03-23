@@ -18,4 +18,6 @@ TEST(TestSuit, _1){
     auto after = read(data_dir +  "/after.txt");
 
     Text txt(befor, after);
+
+    txt.showDiff();
 }
