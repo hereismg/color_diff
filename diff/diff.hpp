@@ -104,7 +104,7 @@ namespace mg{
         std::vector<std::string> res;
         std::string line;
         while(getline(after_file, line)){
-            res.push_back(line); // 注意，这里默认不添加换行符！
+            res.push_back(line + "\n"); // 注意，这里默认添加了换行符！
         }
     
         return res;
@@ -133,18 +133,18 @@ namespace mg{
             m_befor (split(befor, '\n')), 
             m_after (split(after, '\n')),
             m_dp    (m_befor.size()+1, std::vector<int>(m_after.size()+1, 0)),
-            m_parent(m_befor.size()+1, std::vector<int>(m_after.size()+1, 0))
+            m_parent(m_befor.size()+1, std::vector<int>(m_after.size()+1, -1))
             {}
         Text(std::vector<std::string> befor, std::vector<std::string> after): 
             m_befor (befor), 
             m_after (after),
             m_dp    (m_befor.size()+1, std::vector<int>(m_after.size()+1, 0)),
-            m_parent(m_befor.size()+1, std::vector<int>(m_after.size()+1, 0))
+            m_parent(m_befor.size()+1, std::vector<int>(m_after.size()+1, -1))
             {}
     
 
     public:
-        void calc_dp(){
+        int calc_dp(){
             for (int i=1; i<=m_befor.size(); i++){
                 for (int j=1; j<=m_after.size(); j++){
                     if (m_befor[i-1].compare(m_after[j-1]) == 0){
@@ -159,34 +159,18 @@ namespace mg{
                     }
                 }
             }
+            return m_dp[m_befor.size()][m_after.size()];
         }
         
         // ========== 求出文本差异 =========
-        int diff(){
-            std::vector<std::vector<int>> dp(m_befor.size()+1, std::vector<int>(m_after.size()+1, 0)),
-                                parent(m_befor.size()+1, std::vector<int>(m_after.size()+1, -1));
-    
-            // dp 求出结果
-            for (int i=1; i<=m_befor.size(); i++){
-                for (int j=1; j<=m_after.size(); j++){
-                    if (m_befor[i-1].compare(m_after[j-1]) == 0){
-                        dp[i][j] = dp[i-1][j-1] + 1;
-                        parent[i][j] = 1; // 斜角
-                    }
-                    else{
-                        dp[i][j] = std::max(dp[i-1][j], dp[i][j-1]);
-    
-                        if (dp[i-1][j]>dp[i][j-1]) parent[i][j] = 2;
-                        else parent[i][j] = 0;
-                    }
-                }
-            }
+        void calc_diff(){
+            calc_dp();
     
             // 求出具体的相同点
             int x=m_befor.size(), y=m_after.size();
     
-            while(parent[x][y] != -1){
-                int cur = parent[x][y];
+            while(m_parent[x][y] != -1){
+                int cur = m_parent[x][y];
                 if (cur == 1){
                     m_diff.emplace_back(State::SAME, m_befor[x-1]);
                 }
@@ -204,22 +188,20 @@ namespace mg{
             }
     
             std::reverse(m_diff.begin(), m_diff.end());
-    
-            return dp[m_befor.size()][m_after.size()];        
         }
 
         void showDiff(){
-            diff();
+            calc_diff();
 
             for (auto iter: m_diff){
                 if (iter.first == State::SAME){
-                    color_cout << "  │ " << iter.second << std::endl;
+                    color_cout << "  │ " << iter.second;
                 }
                 else if (iter.first == State::ADDITION){
-                    color_cout << Color::GREEN << "+ │ " << iter.second << Color::RESET << std::endl;
+                    color_cout << Color::GREEN << "+ │ " << iter.second << Color::RESET;
                 }
                 else if (iter.first == State::DELETE){
-                    color_cout << Color::RED << "- │ " << iter.second << Color::RESET << std::endl;
+                    color_cout << Color::RED << "- │ " << iter.second << Color::RESET;
                 }
             }
         }

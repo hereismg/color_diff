@@ -9,7 +9,7 @@ int main(){
 
     Text txt(befor, after);
 
-    int res = txt.diff();
+    int res = txt.calc_diff();
 
     cout << res << endl;
 

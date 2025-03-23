@@ -30,3 +30,12 @@ TEST(TestSuit, _2){
 
     txt.showDiff();
 }
+
+TEST(TestSuit, _3){
+    auto befor = read(data_dir + "/3_befor.txt");
+    auto after = read(data_dir +  "/3_after.txt");
+
+    Text txt(befor, after);
+
+    txt.showDiff();
+}
