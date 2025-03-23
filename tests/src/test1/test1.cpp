@@ -13,29 +13,23 @@ TEST(Test_data_path, _1){
 }
 std::string data_dir = TEST_DATA_PATH;
 
-TEST(TestSuit, _1){
-    auto befor = read(data_dir + "/1_befor.txt");
-    auto after = read(data_dir +  "/1_after.txt");
+
+class Test_showDiff: public testing::TestWithParam<std::tuple<std::string, std::string>>{};
+TEST_P(Test_showDiff, _){
+    auto [befor_path, after_path] = GetParam();
+    
+    auto befor = read(data_dir + befor_path);
+    auto after = read(data_dir + after_path);
 
     Text txt(befor, after);
 
     txt.showDiff();
 }
 
-TEST(TestSuit, _2){
-    auto befor = read(data_dir + "/2_befor.txt");
-    auto after = read(data_dir +  "/2_after.txt");
-
-    Text txt(befor, after);
-
-    txt.showDiff();
-}
-
-TEST(TestSuit, _3){
-    auto befor = read(data_dir + "/3_befor.txt");
-    auto after = read(data_dir +  "/3_after.txt");
-
-    Text txt(befor, after);
-
-    txt.showDiff();
-}
+INSTANTIATE_TEST_SUITE_P(TestSuit, Test_showDiff, testing::Values(
+    tuple<string, string>{"/1_befor.txt", "/1_after.txt"},
+    tuple<string, string>{"/2_befor.txt", "/2_after.txt"},
+    tuple<string, string>{"/3_befor.txt", "/3_after.txt"},
+    tuple<string, string>{"/4_befor.txt", "/4_after.txt"},
+    tuple<string, string>{"/5_befor.txt", "/5_after.txt"}
+));

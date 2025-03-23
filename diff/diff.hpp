@@ -186,6 +186,11 @@ namespace mg{
                 x += dx[cur];
                 y += dy[cur];
             }
+
+            while(x>=1){
+                m_diff.emplace_back(State::DELETE, m_befor[x-1]);
+                x --;
+            }
     
             std::reverse(m_diff.begin(), m_diff.end());
         }
