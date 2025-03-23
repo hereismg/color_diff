@@ -8,7 +8,10 @@
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
-            "intelliSenseMode": "linux-gcc-x64"
+            "intelliSenseMode": "linux-gcc-x64",
+            "compilerArgs": [
+                "TEST_DATA_PATH=\"${test}\""
+            ]
         }
     ],
     "version": 4

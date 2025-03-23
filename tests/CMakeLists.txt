@@ -18,6 +18,11 @@ foreach(test ${sub_dir})
         GTest::GTest
         GTest::Main
     )
+    target_compile_definitions(
+        ${test_name} 
+        PRIVATE
+        TEST_DATA_PATH="${test}" # 传递数据的宏
+    )
 
     add_test(NAME ${test_name} COMMAND ${test_name})
 endforeach()
