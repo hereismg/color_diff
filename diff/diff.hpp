@@ -120,7 +120,7 @@ namespace mg{
     };
     
     class Text{
-    private:
+    public:
         std::vector<std::string> m_befor;
         std::vector<std::string> m_after;
         std::vector<std::pair<State, std::string>> m_diff;
@@ -146,6 +146,7 @@ namespace mg{
     public:
         int calc_dp(){
             for (int i=1; i<=m_befor.size(); i++){
+                std::cout << (double) 1 / m_befor.size() << std::endl;
                 for (int j=1; j<=m_after.size(); j++){
                     if (m_befor[i-1].compare(m_after[j-1]) == 0){
                         m_dp[i][j] = m_dp[i-1][j-1] + 1;
@@ -161,10 +162,42 @@ namespace mg{
             }
             return m_dp[m_befor.size()][m_after.size()];
         }
+
+        int calc_dp_mul(){
+            int m = m_befor.size(), n = m_after.size();
+            
+            for (int k = 1; k <= m+n-1; k++){
+                std::cout << (double) k / (m+n-1) << std::endl;
+
+                #pragma omp parallel for
+                for (int i = std::max(1, k-n+1); i <= std::min(m, k); i++){
+                    int j = k + 1 - i;
+
+                    if (i > m || j > n) continue;  // 跳过无效索引
+
+                    assert(i - 1 >= 0 && j - 1 >= 0);
+                    // std::cout << i << " " << j << std::endl;
+
+                    if (m_befor[i-1].compare(m_after[j-1]) == 0){
+                        m_dp[i][j] = m_dp[i-1][j-1] + 1;
+                        m_parent[i][j] = 1; // 斜角
+                    }
+                    else{
+                        m_dp[i][j] = std::max(m_dp[i-1][j], m_dp[i][j-1]);
+    
+                        if (m_dp[i-1][j]>m_dp[i][j-1]) m_parent[i][j] = 2;
+                        else m_parent[i][j] = 0;
+                    }
+                }
+            }
+
+            return m_dp[m][n];
+        }
         
         // ========== 求出文本差异 =========
         void calc_diff(){
             calc_dp();
+            // calc_dp_mul();
     
             // 求出具体的相同点
             int x=m_befor.size(), y=m_after.size();

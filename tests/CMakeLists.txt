@@ -4,6 +4,9 @@ file(GLOB sub_dir
     "${CMAKE_CURRENT_LIST_DIR}/src/*"
 )
 
+# 启动 OpenML
+find_package(OpenMP REQUIRED)
+
 foreach(test ${sub_dir})
     get_filename_component(test_name "${test}" NAME_WE)
     add_executable(${test_name} "${test}/${test_name}.cpp")
@@ -15,8 +18,10 @@ foreach(test ${sub_dir})
     )
     target_link_libraries(
         ${test_name}
+        PUBLIC
         GTest::GTest
         GTest::Main
+        OpenMP::OpenMP_CXX
     )
     target_compile_definitions(
         ${test_name} 
